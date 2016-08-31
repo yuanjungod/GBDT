@@ -113,13 +113,23 @@ def construct_decision_tree(dataset, remainedSet, targets, depth, leaf_nodes, ma
                     selectedRightIdSet = rightIdSet
         if not selectedAttribute or mse < 0:
             raise ValueError("cannot determine the split attribute.")
-        tree = Tree()
-        tree.split_feature = selectedAttribute
-        tree.real_value_feature = dataset.is_real_type_field(selectedAttribute)
-        tree.conditionValue = conditionValue
-        tree.leftTree = construct_decision_tree(dataset, selectedLeftIdSet, targets, depth+1, leaf_nodes, max_depth, loss)
-        tree.rightTree = construct_decision_tree(dataset, selectedRightIdSet, targets, depth+1, leaf_nodes, max_depth, loss)
-        return tree
+        if len(selectedLeftIdSet) is 0 or len(selectedRightIdSet) is 0:
+            node = LeafNode(remainedSet)
+            node.update_predict_value(targets, loss)
+            leaf_nodes.append(node)
+            tree = Tree()
+            tree.leafNode = node
+            return tree
+        else:
+            tree = Tree()
+            tree.split_feature = selectedAttribute
+            tree.real_value_feature = dataset.is_real_type_field(selectedAttribute)
+            tree.conditionValue = conditionValue
+            # if len(selectedLeftIdSet) > 0:
+            tree.leftTree = construct_decision_tree(dataset, selectedLeftIdSet, targets, depth+1, leaf_nodes, max_depth, loss)
+            # if len(selectedRightIdSet) > 0:
+            tree.rightTree = construct_decision_tree(dataset, selectedRightIdSet, targets, depth+1, leaf_nodes, max_depth, loss)
+            return tree
     else:  # 是叶子节点
         node = LeafNode(remainedSet)
         node.update_predict_value(targets, loss)

@@ -29,5 +29,17 @@ from gbdt.model import GBDT
 if __name__ == '__main__':
     data_file = './data/credit.data.csv'
     dateset = DataSet(data_file)
-    gbdt = GBDT(max_iter=20, sample_rate=0.8, learn_rate=0.5, max_depth=7, loss_type='binary-classification')
+    gbdt = GBDT(max_iter=100, sample_rate=0.8, learn_rate=0.1, max_depth=7, loss_type='regression')
     gbdt.fit(dateset, dateset.get_instances_idset())
+    predict = gbdt.predict(dateset.instances[1])
+    print "predict", predict, dateset.get_instance(1)['label']
+    print "#########################"
+    predict = gbdt.predict(dateset.instances[2])
+    print "predict", predict, dateset.get_instance(2)['label']
+    print "#########################"
+    predict = gbdt.predict(dateset.instances[3])
+    print "predict", predict, dateset.get_instance(3)['label']
+    print "#########################"
+    predict = gbdt.predict(dateset.instances[4])
+    print "predict", predict, dateset.get_instance(4)['label']
+

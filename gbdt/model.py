@@ -6,7 +6,10 @@ from math import exp, log
 from gbdt.tree import construct_decision_tree
 
 
-class RegressionLossFunction(metaclass=abc.ABCMeta):
+class RegressionLossFunction:
+
+    __metaclass__  = abc.ABCMeta
+
     def __init__(self, n_classes):
         self.K = n_classes
 
@@ -62,8 +65,11 @@ class LeastSquaresError(RegressionLossFunction):
         return sum1/len(idset)
 
 
-class ClassificationLossFunction(metaclass=abc.ABCMeta):
+class ClassificationLossFunction:
     """分类损失函数的基类"""
+
+    __metaclass__ = abc.ABCMeta
+
     def __init__(self, n_classes):
         self.K = n_classes
 
@@ -115,6 +121,8 @@ class BinomialDeviance(ClassificationLossFunction):
 
     def update_ternimal_regions(self, targets, idset):
         sum1 = sum([targets[id] for id in idset])
+        if len(idset) == 0:
+            print "bugs"
         if sum1 == 0:
             return sum1
         sum2 = sum([abs(targets[id])*(2-abs(targets[id])) for id in idset])
@@ -229,10 +237,11 @@ class GBDT:
                 self.loss.update_f_value(f, tree, leaf_nodes, subset, dataset, self.learn_rate)
                 if isinstance(self.loss, RegressionLossFunction):
                     # todo 判断回归的效果
-                    pass
+                    train_loss = self.compute_loss(dataset, train_data, f)
+                    print("iter%d : train loss=%f" % (iter, train_loss))
                 else:
                     train_loss = self.compute_loss(dataset, train_data, f)
-                    print("iter%d : train loss=%f" % (iter,train_loss))
+                    print("iter%d : train loss=%f" % (iter, train_loss))
 
     def compute_loss(self, dataset, subset, f):
         loss = 0.0
@@ -264,7 +273,8 @@ class GBDT:
         if self.loss.K == 1:
             f_value = 0.0
             for iter in self.trees:
-                f_value += self.learn_rate * iter.get_predict_value(instance)
+                print iter, self.trees[iter].get_predict_value(instance)
+                f_value += self.learn_rate * self.trees[iter].get_predict_value(instance)
         else:
             f_value = dict()
             for label in self.loss.labelset:
