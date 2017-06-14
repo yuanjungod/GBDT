@@ -1,36 +1,20 @@
-# -*- coding:utf-8 -*- 
-__author__ = 'Dragonfly'
-"""
-如下为credit.data.csv文件的训练信息
-iter1 : train loss=0.371342
-iter2 : train loss=0.238326
-iter3 : train loss=0.163624
-iter4 : train loss=0.123063
-iter5 : train loss=0.087872
-iter6 : train loss=0.065684
-iter7 : train loss=0.049936
-iter8 : train loss=0.041866
-iter9 : train loss=0.035695
-iter10 : train loss=0.030581
-iter11 : train loss=0.027034
-iter12 : train loss=0.024570
-iter13 : train loss=0.019227
-iter14 : train loss=0.015794
-iter15 : train loss=0.013484
-iter16 : train loss=0.010941
-iter17 : train loss=0.009879
-iter18 : train loss=0.008619
-iter19 : train loss=0.007306
-iter20 : train loss=0.005610
-"""
+# -*- coding:utf-8 -*-
 from gbdt.data import DataSet
 from gbdt.model import GBDT
+from math import exp, log
 
-if __name__ == '__main__':
-    data_file = './data/credit.data.csv'
+__author__ = 'jun yuan'
+
+
+def train_model():
+    data_file = './data/feature_data.csv'
     dateset = DataSet(data_file)
-    gbdt = GBDT(max_iter=100, sample_rate=0.8, learn_rate=0.1, max_depth=7, loss_type='regression')
-    gbdt.fit(dateset, dateset.get_instances_idset())
+
+    gbdt = GBDT(max_iter=80, sample_rate=0.8, learn_rate=0.1, max_depth=7, loss_type='regression')
+    gbdt.fit(dateset, set(list(dateset.get_instances_idset())[:1200]))
+
+    GBDT.save_model(gbdt, "./", "test")
+
     predict = gbdt.predict(dateset.instances[1])
     print "predict", predict, dateset.get_instance(1)['label']
     print "#########################"
@@ -42,4 +26,33 @@ if __name__ == '__main__':
     print "#########################"
     predict = gbdt.predict(dateset.instances[4])
     print "predict", predict, dateset.get_instance(4)['label']
+    predict = gbdt.predict(dateset.instances[402])
+    print "predict", predict, dateset.get_instance(402)['label']
+
+
+def test_model():
+    data_file = './data/feature_data.csv'
+    dateset = DataSet(data_file)
+    gbdt = GBDT.load_model("./", "test")
+    loss = 0.0
+    err_num = 0
+    for item_id in dateset.get_instances_idset():
+        predict = gbdt.predict(dateset.instances[item_id])
+        print "predict", predict, dateset.get_instance(item_id)['label']
+
+        y_i = dateset.get_instance(item_id)['label']
+        f_value = predict
+        p_1 = 1 / (1 + exp(-2 * f_value))
+        loss -= ((1 + y_i) * log(p_1) / 2) + ((1 - y_i) * log(1 - p_1) / 2)
+        if abs(y_i - predict) > 0.5:
+            err_num += 1
+    print "loss %s" % (loss/dateset.size())
+    print "err_classifier rate: %s" % ((err_num*1.0)/dateset.size())
+
+if __name__ == '__main__':
+    train_model()
+    test_model()
+
+
+
 

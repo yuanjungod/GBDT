@@ -4,6 +4,9 @@ import abc
 from random import sample
 from math import exp, log
 from gbdt.tree import construct_decision_tree
+import pickle
+
+__author__ = 'jun yuan'
 
 
 class RegressionLossFunction:
@@ -273,7 +276,7 @@ class GBDT:
         if self.loss.K == 1:
             f_value = 0.0
             for iter in self.trees:
-                print iter, self.trees[iter].get_predict_value(instance)
+                # print iter, self.trees[iter].get_predict_value(instance)
                 f_value += self.learn_rate * self.trees[iter].get_predict_value(instance)
         else:
             f_value = dict()
@@ -327,3 +330,13 @@ class GBDT:
                 if not predict_label or probs[label] > probs[predict_label]:
                     predict_label = label
         return predict_label
+
+    @classmethod
+    def save_model(cls, model, path, name):
+        pickle.dump(model, open(path+name, 'wb'), True)
+
+    @classmethod
+    def load_model(cls, path, name):
+        return pickle.load(open(path+name, 'r'))
+
+

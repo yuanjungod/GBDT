@@ -2,6 +2,8 @@
 from math import log
 from random import sample
 
+__author__ = 'jun yuan'
+
 
 class Tree:
     def __init__(self):
@@ -81,6 +83,8 @@ def construct_decision_tree(dataset, remainedSet, targets, depth, leaf_nodes, ma
     if depth < max_depth:
         # todo 通过修改这里可以实现选择多少特征训练
         attributes = dataset.get_attributes()
+        attributes = tuple(list(attributes)[1:])
+        print attributes
         mse = -1
         selectedAttribute = None
         conditionValue = None
@@ -105,6 +109,7 @@ def construct_decision_tree(dataset, remainedSet, targets, depth, leaf_nodes, ma
                 leftTargets = [targets[id] for id in leftIdSet]
                 rightTargets = [targets[id] for id in rightIdSet]
                 sum_mse = MSE(leftTargets)+MSE(rightTargets)
+                print sum_mse
                 if mse < 0 or sum_mse < mse:
                     selectedAttribute = attribute
                     conditionValue = attrValue
